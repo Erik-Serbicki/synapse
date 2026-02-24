@@ -1,8 +1,7 @@
-version: '3'
 services:
   synapse:
     container_name: synapse
-    image: docker.io/matrixdotorg/synapse:latest
+    image: ghcr.io/element-hq/synapse:latest
     # Since synapse does not retry to connect to the database, restart upon
     # failure
     restart: unless-stopped
@@ -11,22 +10,19 @@ services:
     # config file location - be sure to create one first!
     # https://github.com/matrix-org/synapse/tree/develop/docker#generating-a-configuration-file
       - SYNAPSE_CONFIG_PATH=/data/homeserver.yaml
-      - UID=1000
-      - GID=1000
+      - UID=${PUID}
+      - GID=${GUID}
     volumes:
-      # You may either store all the files in a local folder
-      - /home/ubuntu/docker/synapse:/data
-      # .. or you may split this between different storage points
-      # - ./files:/data
-      # - /path/to/ssd:/data/uploads
-      # - /path/to/large_hdd:/data/media
+      - ${CONFIGS}:/data #location of config
+      - ${STORAGE}/media:/data/media #larger drive for storage
+      - ${STORAGE}/uploads:/data/uploads #larger drive for storage
     depends_on:
     # We're going to use an external database as it's more performant for multiple
     # users
       - synapse-db
     networks:
         synapse:
-        proxy:
+        traefik-public:
     # Uncomment if not using a proxy. In order to expose Synapse, remove one of the following, 
     # you might for instance expose the TLS port directly:
     #ports:
@@ -37,15 +33,15 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.synapse.entrypoints=http"
-      - "traefik.http.routers.synapse.rule=Host(`matrix.yourdomain.com`)"
+      - "traefik.http.routers.synapse.rule=Host(`matrix.local.serbicki.com`)"
       - "traefik.http.middlewares.synapse-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.synapse.middlewares=synapse-https-redirect"
       - "traefik.http.routers.synapse-secure.entrypoints=https"
-      - "traefik.http.routers.synapse-secure.rule=Host(`matrix.yourdomain.com`)"
+      - "traefik.http.routers.synapse-secure.rule=Host(`matrix.local.serbicki.com`)"
       - "traefik.http.routers.synapse-secure.tls=true"
       - "traefik.http.routers.synapse-secure.service=synapse"
       - "traefik.http.services.synapse.loadbalancer.server.port=8008"
-      - "traefik.docker.network=proxy"
+      - "traefik.docker.network=traefik-public"
         
   synapse-db:
     image: docker.io/postgres:15-alpine
@@ -54,7 +50,7 @@ services:
     # Change password below, of course!
     environment:
       - POSTGRES_USER=synapse_user
-      - POSTGRES_PASSWORD=xF2oDmvPLXhN8yivmI7PhPLozBl0ZgfQsjnd55yH # CHANGE ME!
+      - POSTGRES_PASSWORD=postgres_password
       - POSTGRES_DB=synapse
       # ensure the database gets created correctly
       # https://github.com/matrix-org/synapse/blob/master/docs/postgres.md#set-up-database
@@ -65,11 +61,17 @@ services:
       # .. or store them on some high performance storage for better results
       # - /path/to/ssd/storage:/var/lib/postgresql/data
     ports:
-      - 5432:5432
+      - ${POSTGRES_PORT}:5432
     networks:
        synapse:
+    secrets:
+      - postgres_password
 
 networks:
   synapse:
-  proxy:
+  traefik-public:
     external: true
+
+secrets:
+  postgres_password:
+    file: ${CONFIGS}/postrges_pass.txt
