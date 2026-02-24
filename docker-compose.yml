@@ -74,4 +74,4 @@ networks:
 
 secrets:
   postgres_password:
-    file: ${CONFIGS}/postrges_pass.txt
+    file: ${CONFIGS}/postgres_pass.txt
