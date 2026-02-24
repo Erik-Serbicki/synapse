@@ -13,8 +13,8 @@ services:
       - UID=${PUID}
       - GID=${GUID}
     volumes:
-      - ${CONFIGS}:/data #location of config
-      - ${STORAGE}/media:/data/media_store #larger drive for storage
+      - ${STORAGE}:/data #location of config
+      - ${STORAGE}/media_store:/data/media_store #larger drive for storage
       - ${STORAGE}/uploads:/data/uploads #larger drive for storage
     depends_on:
     # We're going to use an external database as it's more performant for multiple
