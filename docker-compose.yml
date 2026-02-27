@@ -91,7 +91,7 @@ services:
     user: 1029:100
     read_only: true
     volumes:
-      ${CONFIGS}/eturnal.yml:/etc/eturnal.yml:ro
+      - ${CONFIGS}/eturnal.yml:/etc/eturnal.yml:ro
     cap_drop:
       - ALL
     cap_add:
