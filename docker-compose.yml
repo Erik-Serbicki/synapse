@@ -83,27 +83,27 @@ services:
   #  networks:
   #    synapse:
 
-  eturnal:
-    image: ghcr.io/processone/eturnal:latest
-    hostname: eturnal
-    container_name: eturnal
-    restart: unless-stopped
-    user: 1029:100
-    read_only: true
-    volumes:
-      - ${CONFIGS}/eturnal.yml:/etc/eturnal.yml:ro
-    cap_drop:
-      - ALL
-    cap_add:
-      - NET_BIND_SERVICE
-    security_opt:
-      - no-new-privileges:true
-    ports:
-      - 3478:3478
-      - 3478:3478/udp 
-      - 49152-65535/udp
-    networks:
-      synapse:
+  #eturnal:
+  #  image: ghcr.io/processone/eturnal:latest
+  #  hostname: eturnal
+  #  container_name: eturnal
+  #  restart: unless-stopped
+  #  user: 1029:100
+  #  read_only: true
+  #  volumes:
+  #    - ${CONFIGS}/eturnal.yml:/etc/eturnal.yml:ro
+  #  cap_drop:
+  #    - ALL
+  #  cap_add:
+  #    - NET_BIND_SERVICE
+  #  security_opt:
+  #    - no-new-privileges:true
+  #  ports:
+  #    - 3478:3478
+  #    - 3478:3478/udp 
+  #    - 49152-65535/udp
+  #  networks:
+  #    synapse:
 
 
 networks:
